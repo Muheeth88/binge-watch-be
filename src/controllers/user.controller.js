@@ -33,7 +33,6 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-	// return res.send('<h1>Hii There!</h1>');
 
 	const { email, password } = req.body;
 	if (!email) {
