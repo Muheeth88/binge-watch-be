@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
 	{
@@ -16,24 +18,47 @@ const userSchema = new mongoose.Schema(
 				"Please provide a valid email",
 			],
 		},
-        dateOfBirth: {
-            type: Date,
-        },
-        password: {
-            type: String,
-            required: [true, "Password is must"]
-        },
-        role: {
-            type: String,
-            enum: ["USER", "ADMIN"],
-            default: "USER"
-        },
+		dateOfBirth: {
+			type: Date,
+		},
+		password: {
+			type: String,
+			required: [true, "Password is must"],
+		},
+		role: {
+			type: String,
+			enum: ["USER", "ADMIN"],
+			default: "USER",
+		},
 
-        //   ! Need to Add these fields in user later 
-        // watchlist: {},
-        // favourites: {}
+		//   ! Need to Add these fields in user later
+		// watchlist: {},
+		// favourites: {}
 	},
 	{ timestamps: true }
 );
+
+userSchema.pre("save", async function (next) {
+	if (!this.isModified("password")) return next();
+	this.password = await bcrypt.hash(this.password, 10);
+	next();
+});
+
+userSchema.methods.isPasswordCorrect = async function (password) {
+	return await bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateJwtToken = function () {
+	return jwt.sign(
+		{
+			_id: this._id,
+			email: this.email,
+		},
+		process.env.JWT_TOKEN_SECRET,
+		{
+			expiresIn: process.env.JWT_TOKEN_EXPIRY,
+		}
+	);
+};
 
 export const User = mongoose.model("User", userSchema);
