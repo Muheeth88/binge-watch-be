@@ -1,0 +1,39 @@
+import mongoose from "mongoose";
+
+const userSchema = new mongoose.Schema(
+	{
+		userName: {
+			type: String,
+			required: [true, "Username is required"],
+			unique: [true, "UserName alredy taken, try other usernames"],
+		},
+		email: {
+			type: String,
+			required: [true, "Email is required"],
+			unique: [true, "Email alredy in use, try other usernames"],
+			match: [
+				/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+				"Please provide a valid email",
+			],
+		},
+        dateOfBirth: {
+            type: Date,
+        },
+        password: {
+            type: String,
+            required: [true, "Password is must"]
+        },
+        role: {
+            type: String,
+            enum: ["USER", "ADMIN"],
+            default: "USER"
+        },
+
+        //   ! Need to Add these fields in user later 
+        // watchlist: {},
+        // favourites: {}
+	},
+	{ timestamps: true }
+);
+
+export const User = mongoose.model("User", userSchema);
