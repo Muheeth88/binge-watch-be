@@ -4,6 +4,7 @@ import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// * Unsecured Routes
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 

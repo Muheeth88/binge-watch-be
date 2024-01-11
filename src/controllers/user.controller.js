@@ -22,7 +22,7 @@ const registerUser = asyncHandler(async (req, res) => {
 	// * Creating a User
 	const user = await User.create({ email, userName, password, role, dateOfBirth });
 
-	// * Check if user is created (optional)
+	// * Check if user is created
 	const createdUser = await User.findById(user._id).select("-password");
 	if (!createdUser) {
 		throw new ApiError(500, "Something went wrong while registering the user");

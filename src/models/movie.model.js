@@ -8,17 +8,16 @@ const movieSchema = new mongoose.Schema({
     tagline: String,
     plotSmmary: String,
     countryOfOrigin: String,
-    plotSmmary: String,
     originalLanguage: {
-        type: Schema.Types.ObjectId,
-        ref: "Language"
+        type: String,
     },
     genre: [{
-        type: Schema.Types.ObjectId,
-        ref: "Genre"
+        type: String,
+        required: [true, "Genre is required"]
     }],
     releaseDate: {
-        type: Date
+        type: Date,
+        required: [true, "Release date is required"]
     },
     
 }, {timestamps: true})

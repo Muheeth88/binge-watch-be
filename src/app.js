@@ -23,9 +23,13 @@ app.get("/", (req, res) => {
 
 // Routes Import
 import userRouter from "./routes/user.routes.js";
+import movieRouter from "./routes/movie.routes.js"
+import genreRouter from "./routes/genre.routes.js"
 
 // Routes Declaration
 app.use("/api/users", userRouter);
+app.use("/api/movies", movieRouter)
+app.use("/api/genres", genreRouter)
 
 app.use(notFoundMiddleware);
 
