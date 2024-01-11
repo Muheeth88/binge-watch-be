@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -32,7 +32,10 @@ const userSchema = new mongoose.Schema(
 		},
 
 		//   ! Need to Add these fields in user later
-		// watchlist: {},
+		watchlist:[{
+			type: Schema.Types.ObjectId,
+			ref: "Movie"
+		}],
 		// favourites: {}
 	},
 	{ timestamps: true }
