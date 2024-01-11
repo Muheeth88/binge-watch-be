@@ -26,12 +26,14 @@ import userRouter from "./routes/user.routes.js";
 import movieRouter from "./routes/movie.routes.js";
 import genreRouter from "./routes/genre.routes.js";
 import watchListRouter from "./routes/watchlist.routes.js"
+import { favouritesRouter } from "./routes/favourites.routes.js";
 
 // Routes Declaration
 app.use("/api/users", userRouter);
 app.use("/api/movies", movieRouter);
 app.use("/api/genres", genreRouter);
 app.use("/api/watchlist", watchListRouter)
+app.use("/api/favourites", favouritesRouter)
 
 app.use(notFoundMiddleware);
 
