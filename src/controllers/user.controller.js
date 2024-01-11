@@ -85,6 +85,10 @@ const logOutUser = asyncHandler(async (req, res) => {
 	return res.status(200).clearCookie("jwtToken", options).json(new ApiResponse(200, {}, "User LoggedOut"));
 });
 
+const getUserProfile = asyncHandler(async (req, res) => {
+	return res.status(200).json(new ApiResponse(200, req.user, "User Fetched Successfully"));
+})
+
 const generateJwtToken = async (userId) => {
 	try {
 		const user = await User.findById(userId);
@@ -96,4 +100,4 @@ const generateJwtToken = async (userId) => {
 	}
 };
 
-export { registerUser, loginUser, logOutUser };
+export { registerUser, loginUser, logOutUser, getUserProfile };
