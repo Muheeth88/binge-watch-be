@@ -1,4 +1,5 @@
 import { Review } from "../models/review.model.js";
+import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
@@ -10,13 +11,12 @@ const getMovieReviews = asyncHandler(async (req, res) => {
 			$match: {
 				movie: new mongoose.Types.ObjectId(movieId),
 			},
-		
 		},
 		{
 			$project: {
 				comment: 1,
-				reviewBy: 1
-			}
+				reviewBy: 1,
+			},
 		},
 		{
 			$lookup: {
@@ -28,12 +28,12 @@ const getMovieReviews = asyncHandler(async (req, res) => {
 					{
 						$project: {
 							email: 1,
-							userName: 1
-						}
-					}
-				]
+							userName: 1,
+						},
+					},
+				],
 			},
-		}
+		},
 	]);
 
 	return res.status(200).json(new ApiResponse(200, reviews, "Reviews fetched Successfully"));
@@ -48,7 +48,17 @@ const addMovieReview = asyncHandler(async (req, res) => {
 	return res.status(201).json(new ApiResponse(200, postedReview, "Review Posted"));
 });
 
-const deleteMovieReview = asyncHandler(async (req, res) => {});
+const deleteMovieReview = asyncHandler(async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user._id;
+	const comment = await Review.findById(reviewId);
+	const postedBy = comment.reviewBy;
+	if (userId.toString() !== postedBy.toString()) {
+		throw new ApiError(400, "Unauthorized Access");
+	}
+	await Review.findByIdAndDelete(reviewId);
+	res.status(200).json(new ApiResponse(200, { userId, postedBy }, "Review Deleted"));
+});
 
 const editMovieReview = asyncHandler(async (req, res) => {});
 
