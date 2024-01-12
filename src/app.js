@@ -27,10 +27,12 @@ import { movieRouter } from "./routes/movie.routes.js";
 import { genreRouter } from "./routes/genre.routes.js";
 import { watchlistRouter } from "./routes/watchlist.routes.js";
 import { favouritesRouter } from "./routes/favourites.routes.js";
+import { reviewRouter } from "./routes/review.routes.js";
 
 // Routes Declaration
 app.use("/api/users", userRouter);
 app.use("/api/movies", movieRouter);
+app.use("/api/reviews", reviewRouter);
 app.use("/api/genres", genreRouter);
 app.use("/api/watchlist", watchlistRouter);
 app.use("/api/favourites", favouritesRouter);
