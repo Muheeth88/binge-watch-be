@@ -33,7 +33,6 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-
 	const { email, password } = req.body;
 	if (!email) {
 		throw new ApiError(400, "email is required");
@@ -87,7 +86,7 @@ const logOutUser = asyncHandler(async (req, res) => {
 
 const getUserProfile = asyncHandler(async (req, res) => {
 	return res.status(200).json(new ApiResponse(200, req.user, "User Fetched Successfully"));
-})
+});
 
 const generateJwtToken = async (userId) => {
 	try {

@@ -2,14 +2,14 @@ import { Router } from "express";
 import { getUserProfile, logOutUser, loginUser, registerUser } from "../controllers/user.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
-const router = Router();
+const userRouter = Router();
 
 // * Unsecured Routes
-router.route("/register").post(registerUser);
-router.route("/login").post(loginUser);
+userRouter.route("/register").post(registerUser);
+userRouter.route("/login").post(loginUser);
 
 // * Secured Routes
-router.route("/logout").post(verifyJwt, logOutUser);
-router.route("/get-user-profile").get(verifyJwt, getUserProfile )
+userRouter.route("/logout").post(verifyJwt, logOutUser);
+userRouter.route("/get-user-profile").get(verifyJwt, getUserProfile);
 
-export default router;
+export { userRouter };

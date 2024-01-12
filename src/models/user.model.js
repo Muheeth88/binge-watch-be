@@ -30,12 +30,18 @@ const userSchema = new mongoose.Schema(
 			enum: ["USER", "ADMIN"],
 			default: "USER",
 		},
-		watchlist:[{
-			type: Schema.Types.ObjectId,
-			ref: "Movie"
-		}],
-		//   ! Need to Add these fields in user later
-		// favourites: {}
+		watchlist: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Movie",
+			},
+		],
+		favourites: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Movie",
+			},
+		],
 	},
 	{ timestamps: true }
 );

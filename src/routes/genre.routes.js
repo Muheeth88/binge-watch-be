@@ -3,10 +3,10 @@ import { verifyJwt } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/admin.middleware.js";
 import { addGenre, deleteGenre, getAllGenres } from "../controllers/genre.controller.js";
 
-const router = Router();
+const genreRouter = Router();
 
-router.route("/all-genres").get(verifyJwt, isAdmin, getAllGenres)
-router.route("/add-genre").post(verifyJwt, isAdmin, addGenre )
-router.route("/delete-genre/:genreId").delete(verifyJwt, isAdmin, deleteGenre)
+genreRouter.route("/all-genres").get(verifyJwt, isAdmin, getAllGenres);
+genreRouter.route("/add-genre").post(verifyJwt, isAdmin, addGenre);
+genreRouter.route("/delete-genre/:genreId").delete(verifyJwt, isAdmin, deleteGenre);
 
-export default router;
+export { genreRouter };
