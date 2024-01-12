@@ -6,6 +6,9 @@ const addToWatchlist = asyncHandler(async (req, res) => {
 	const userId = req.user._id;
 	const movieId = req.params.movieId;
 	const user = await User.findById(userId);
+	if (user.watchlist.includes(movieId)) {
+		throw new ApiError(400, "Movie Alredy exists in Watchlist");
+	}
 	user.watchlist.push(movieId);
 	await user.save({ validateBeforeSave: false });
 	return res.status(200).json(new ApiResponse(200, user.watchlist, "Added to Watchlist!"));
@@ -16,6 +19,9 @@ const removeFromWatchList = asyncHandler(async (req, res) => {
 	const movieId = req.params.movieId;
 	const user = await User.findById(userId);
 	const movieIndex = user.watchlist.indexOf(movieId);
+	if (movieIndex === -1) {
+		throw new ApiError(400, "Movie Not Found in Watchlist");
+	}
 	user.watchlist.splice(movieIndex, 1);
 	await user.save({ validateBeforeSave: false });
 	return res.status(200).json(new ApiResponse(200, user.watchlist, "Removed from Watchlist!"));
