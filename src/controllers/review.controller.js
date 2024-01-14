@@ -51,8 +51,8 @@ const addMovieReview = asyncHandler(async (req, res) => {
 const deleteMovieReview = asyncHandler(async (req, res) => {
 	const { reviewId } = req.params;
 	const userId = req.user._id;
-	const comment = await Review.findById(reviewId);
-	const postedBy = comment.reviewBy;
+	const review = await Review.findById(reviewId);
+	const postedBy = review.reviewBy;
 	if (userId.toString() !== postedBy.toString()) {
 		throw new ApiError(400, "Unauthorized Access");
 	}
@@ -60,6 +60,17 @@ const deleteMovieReview = asyncHandler(async (req, res) => {
 	res.status(200).json(new ApiResponse(200, { userId, postedBy }, "Review Deleted"));
 });
 
-const editMovieReview = asyncHandler(async (req, res) => {});
+const editMovieReview = asyncHandler(async (req, res) => {
+	const { reviewId } = req.params;
+	const userId = req.user._id;
+	const review = await Review.findById(reviewId);
+	const postedBy = review.reviewBy;
+	if (userId.toString() !== postedBy.toString()) {
+		throw new ApiError(400, "Unauthorized Access");
+	}
+	const comment = req.body.comment;
+	const updatedReview = await Review.findByIdAndUpdate(reviewId, {comment}, {new: true})
+	return res.status(200).json( new ApiResponse(200, updatedReview, "Review updated!"))
+});
 
 export { getMovieReviews, addMovieReview, deleteMovieReview, editMovieReview };

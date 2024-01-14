@@ -4,8 +4,15 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 
 const getAllMovies = asyncHandler(async (req, res) => {
-	const allMovies = await Movie.find();
-	return res.status(200).json(new ApiResponse(200, allMovies, "Movies fatched Successfully"));
+	const page = parseInt(req.query.page) || 1;
+	const pageSize = parseInt(req.query.pageSize) || 10;
+	const startIndex = (page - 1) * pageSize;
+
+	const movies = await Movie.find().skip(startIndex).limit(pageSize);
+	const totalRecords = await Movie.countDocuments();
+	return res
+		.status(200)
+		.json(new ApiResponse(200, { page, pageSize, totalRecords, movies }, "Movies fatched Successfully"));
 });
 
 const getMovieById = asyncHandler(async (req, res) => {
