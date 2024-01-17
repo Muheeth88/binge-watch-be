@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 const getAllMovies = asyncHandler(async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
-	const pageSize = parseInt(req.query.pageSize) || 10;
+	const pageSize = parseInt(req.query.pageSize) || 100;
 	const startIndex = (page - 1) * pageSize;
 
 	const movies = await Movie.find().skip(startIndex).limit(pageSize);
@@ -17,7 +17,7 @@ const getAllMovies = asyncHandler(async (req, res) => {
 
 const getMovieById = asyncHandler(async (req, res) => {
 	const movieId = req.params.movieId;
-	const isFav = await Movie.aggregate([
+	const movie = await Movie.aggregate([
 		{
 			$match: {
 				_id: new mongoose.Types.ObjectId(movieId),
@@ -42,7 +42,7 @@ const getMovieById = asyncHandler(async (req, res) => {
 			},
 		},
 	]);
-	return res.status(200).json(new ApiResponse(200, isFav, "Movie fatched Successfully"));
+	return res.status(200).json(new ApiResponse(200, movie, "Movie fatched Successfully"));
 });
 
 const addMovie = asyncHandler(async (req, res) => {
