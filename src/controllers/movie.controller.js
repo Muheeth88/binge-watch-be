@@ -7,9 +7,36 @@ const getAllMovies = asyncHandler(async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
 	const pageSize = parseInt(req.query.pageSize) || 100;
 	const startIndex = (page - 1) * pageSize;
-
-	const movies = await Movie.find().skip(startIndex).limit(pageSize);
+	// const movies = await Movie.find().skip(startIndex).limit(pageSize);
 	const totalRecords = await Movie.countDocuments();
+
+	const movies = await Movie.aggregate([
+		{
+			$addFields: {
+				isFavourite: {
+					$cond: {
+						if: { $in: ["$_id", req.user.favourites] },
+						then: true,
+						else: false,
+					},
+				},
+				isinWatchlist: {
+					$cond: {
+						if: { $in: ["$_id", req.user.watchlist] },
+						then: true,
+						else: false,
+					},
+				},
+			},
+		},
+		{
+			$skip: startIndex,
+		},
+		{
+			$limit: pageSize,
+		},
+	]);
+
 	return res
 		.status(200)
 		.json(new ApiResponse(200, { page, pageSize, totalRecords, movies }, "Movies fatched Successfully"));

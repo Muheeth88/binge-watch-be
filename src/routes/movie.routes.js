@@ -7,7 +7,7 @@ import { isLoggedIn } from "../middlewares/isLoggedIn.middleware.js";
 const movieRouter = Router();
 
 // * Unsecured Routes
-movieRouter.route("/all-movies").get(getAllMovies);
+movieRouter.route("/all-movies").get(isLoggedIn, getAllMovies);
 movieRouter.route("/get-movie/:movieId").get(isLoggedIn, getMovieById);
 
 // * Secured Routes
