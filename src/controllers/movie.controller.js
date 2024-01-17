@@ -20,7 +20,7 @@ const getAllMovies = asyncHandler(async (req, res) => {
 						else: false,
 					},
 				},
-				isinWatchlist: {
+				isInWatchlist: {
 					$cond: {
 						if: { $in: ["$_id", req.user.watchlist] },
 						then: true,
