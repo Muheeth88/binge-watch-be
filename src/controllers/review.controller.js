@@ -23,7 +23,7 @@ const getMovieReviews = asyncHandler(async (req, res) => {
 				from: "users",
 				localField: "reviewBy",
 				foreignField: "_id",
-				as: "reviewBy",
+				as: "reviewByList",
 				pipeline: [
 					{
 						$project: {
@@ -32,6 +32,16 @@ const getMovieReviews = asyncHandler(async (req, res) => {
 						},
 					},
 				],
+			},
+		},
+		{
+			$addFields: {
+				reviewBy: { $arrayElemAt: ["$reviewByList", 0] },
+			},
+		},
+		{
+			$project: {
+				reviewByList: 0,
 			},
 		},
 	]);
