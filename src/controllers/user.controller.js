@@ -2,8 +2,6 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 
 const registerUser = asyncHandler(async (req, res) => {
 	const { userName, email, dateOfBirth, role, password } = req.body;
@@ -85,7 +83,50 @@ const logOutUser = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
-	return res.status(200).json(new ApiResponse(200, req.user, "User Fetched Successfully"));
+	const user = await User.aggregate([
+		{
+			$match: {
+				_id: req.user._id,
+			},
+		},
+		{
+			$lookup: {
+				from: "movies",
+				localField: "watchlist",
+				foreignField: "_id",
+				as: "watchlistMovies",
+				pipeline: [
+					{
+						$project: {
+							title: 1,
+						},
+					},
+				],
+			},
+		},
+		{
+			$lookup: {
+				from: "movies",
+				localField: "favourites",
+				foreignField: "_id",
+				as: "favouriteMovies",
+				pipeline: [
+					{
+						$project: {
+							title: 1,
+						},
+					},
+				],
+			},
+		},
+		{
+			$addFields: {
+				watchlistMovies: "$watchlistMovies",
+				favouriteMovies: "$favouriteMovies",
+			},
+		},
+	]);
+	return res.status(200).json(new ApiResponse(200, user, "User Fetched Successfully"));
 });
 
 const generateJwtToken = async (userId) => {
