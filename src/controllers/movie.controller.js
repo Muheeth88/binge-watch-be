@@ -50,32 +50,39 @@ const getAllMovies = asyncHandler(async (req, res) => {
 
 const getMovieById = asyncHandler(async (req, res) => {
 	const movieId = req.params.movieId;
-	const movie = await Movie.aggregate([
-		{
-			$match: {
-				_id: new mongoose.Types.ObjectId(movieId),
-			},
-		},
-		{
-			$addFields: {
-				isFavourite: {
-					$cond: {
-						if: { $in: [new mongoose.Types.ObjectId(movieId), req.user.favourites] },
-						then: true,
-						else: false,
-					},
-				},
-				isInWatchlist: {
-					$cond: {
-						if: { $in: [new mongoose.Types.ObjectId(movieId), req.user.watchlist] },
-						then: true,
-						else: false,
-					},
+	let movie;
+	if (!req.user) {
+		movie = await Movie.findById(movieId);
+	} else {
+		movie = await Movie.aggregate([
+			{
+				$match: {
+					_id: new mongoose.Types.ObjectId(movieId),
 				},
 			},
-		},
-	]);
-	return res.status(200).json(new ApiResponse(200, movie, "Movie fatched Successfully"));
+			{
+				$addFields: {
+					isFavourite: {
+						$cond: {
+							if: { $in: [new mongoose.Types.ObjectId(movieId), req.user.favourites] },
+							then: true,
+							else: false,
+						},
+					},
+					isInWatchlist: {
+						$cond: {
+							if: { $in: [new mongoose.Types.ObjectId(movieId), req.user.watchlist] },
+							then: true,
+							else: false,
+						},
+					},
+				},
+			},
+		]);
+		movie = movie[0];
+	}
+
+	return res.status(200).json(new ApiResponse(200, movie, "Movie fetched Successfully"));
 });
 
 const addMovie = asyncHandler(async (req, res) => {
