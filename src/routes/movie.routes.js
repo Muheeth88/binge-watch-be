@@ -3,6 +3,7 @@ import { addMovie, getAllMovies, getMovieById } from "../controllers/movie.contr
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 import { isAdmin } from "../middlewares/admin.middleware.js";
 import { isLoggedIn } from "../middlewares/isLoggedIn.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const movieRouter = Router();
 
@@ -11,6 +12,6 @@ movieRouter.route("/all-movies").get(isLoggedIn, getAllMovies);
 movieRouter.route("/get-movie/:movieId").get(isLoggedIn, getMovieById);
 
 // * Secured Routes
-movieRouter.route("/add-movie").post(verifyJwt, isAdmin, addMovie);
+movieRouter.route("/add-movie").post(verifyJwt, isAdmin, upload.single("poster"), addMovie);
 
 export { movieRouter };

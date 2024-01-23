@@ -1,7 +1,9 @@
 import { Movie } from "../models/movie.model.js";
+import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 const getAllMovies = asyncHandler(async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
@@ -86,7 +88,24 @@ const getMovieById = asyncHandler(async (req, res) => {
 });
 
 const addMovie = asyncHandler(async (req, res) => {
-	const movie = await Movie.create(req.body);
+	const { title, tagline, countryOfOrigin, originalLanguage, genre, releaseDate } = req.body;
+
+	const posterPath = req.file.path;
+	if (!posterPath) {
+		throw new ApiError(400, "Avatar is required");
+	}
+
+	const poster = await uploadToCloudinary(posterPath);
+	const movie = await Movie.create({
+		title,
+		tagline,
+		countryOfOrigin,
+		originalLanguage,
+		genre,
+		releaseDate,
+		poster: poster.url,
+	});
+
 	const addedMovie = await Movie.findById(movie._id);
 	return res.status(201).json(new ApiResponse(200, addedMovie, "Movie added Successfully"));
 });

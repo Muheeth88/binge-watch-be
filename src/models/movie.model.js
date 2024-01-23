@@ -22,12 +22,16 @@ const movieSchema = new mongoose.Schema(
 			type: Date,
 			required: [true, "Release date is required"],
 		},
-        reviews: [
-            {
-                type: Schema.Types.ObjectId,
-                ref: "Review"
-            }
-        ]
+		poster: {
+			type: String, //Cloudinary url
+			required: true,
+		},
+		reviews: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Review",
+			},
+		],
 	},
 	{ timestamps: true }
 );
