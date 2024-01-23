@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
+import { promises as fsPromises } from "fs";
 
 const getAllMovies = asyncHandler(async (req, res) => {
 	const page = parseInt(req.query.page) || 1;
@@ -96,6 +97,8 @@ const addMovie = asyncHandler(async (req, res) => {
 	}
 
 	const poster = await uploadToCloudinary(posterPath);
+	const posterUrl = poster.url;
+
 	const movie = await Movie.create({
 		title,
 		tagline,
@@ -103,8 +106,14 @@ const addMovie = asyncHandler(async (req, res) => {
 		originalLanguage,
 		genre,
 		releaseDate,
-		poster: poster.url,
+		poster: posterUrl,
 	});
+
+	// For deleting the local file
+	const filename = req.file.filename;
+	const filePath = `public/temp/${filename}`;
+	await fsPromises.access(filePath);
+	await fsPromises.unlink(filePath);
 
 	const addedMovie = await Movie.findById(movie._id);
 	return res.status(201).json(new ApiResponse(200, addedMovie, "Movie added Successfully"));
