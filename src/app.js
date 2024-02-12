@@ -28,6 +28,7 @@ import { genreRouter } from "./routes/genre.routes.js";
 import { watchlistRouter } from "./routes/watchlist.routes.js";
 import { favouritesRouter } from "./routes/favourites.routes.js";
 import { reviewRouter } from "./routes/review.routes.js";
+import { ratingRouter } from "./routes/rating.routes.js";
 
 // Routes Declaration
 app.use("/api/users", userRouter);
@@ -36,6 +37,7 @@ app.use("/api/reviews", reviewRouter);
 app.use("/api/genres", genreRouter);
 app.use("/api/watchlist", watchlistRouter);
 app.use("/api/favourites", favouritesRouter);
+app.use("/api/ratings", ratingRouter);
 
 app.use(notFoundMiddleware);
 

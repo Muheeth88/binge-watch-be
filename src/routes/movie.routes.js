@@ -14,4 +14,5 @@ movieRouter.route("/get-movie/:movieId").get(isLoggedIn, getMovieById);
 // * Secured Routes
 movieRouter.route("/add-movie").post(verifyJwt, isAdmin, upload.single("poster"), addMovie);
 
+
 export { movieRouter };
