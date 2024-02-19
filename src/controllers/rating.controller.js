@@ -34,7 +34,7 @@ const getAverageRating = asyncHandler(async (req, res) => {
 			},
 		},
 	]);
-	return res.status(201).json(new ApiResponse(200, avgRating, "Avg Rating Fetched"));
+	return res.status(201).json(new ApiResponse(200, avgRating[0], "Avg Rating Fetched"));
 });
 
 const deleteRating = asyncHandler(async (req, res) => {
