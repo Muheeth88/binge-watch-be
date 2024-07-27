@@ -31,36 +31,44 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
-	if (!email) {
-		throw new ApiError(400, "email is required");
+	let errorMessage = "Something went Wrong!";
+	try {
+		const { email, password } = req.body;
+		if (!email || !password) {
+			errorMessage = "Please fill the login details";
+			return res.status(400).json(new ApiResponse(400, null, errorMessage));
+		}
+
+		const user = await User.findOne({ email });
+
+		if (!user) {
+			errorMessage = "User not found!";
+			return res.status(401).json(new ApiResponse(401, null, errorMessage));
+		}
+
+		const isPasswordValid = await user.isPasswordCorrect(password);
+
+		if (!isPasswordValid) {
+			errorMessage = "Please enter the correct password!";
+			return res.status(401).json(new ApiResponse(401, null, errorMessage));
+		}
+
+		const { jwtToken } = await generateJwtToken(user._id);
+
+		const loggedInUser = await User.findById(user._id).select("-password");
+
+		const options = {
+			httpOnly: true,
+			secure: true,
+		};
+
+		return res
+			.status(200)
+			.cookie("jwtToken", jwtToken, options)
+			.json(new ApiResponse(200, { user: loggedInUser, jwtToken }, "User LoggedIn Successfully"));
+	} catch (error) {
+		return res.status(400).json(new ApiResponse(400, null, errorMessage));
 	}
-
-	const user = await User.findOne({ email });
-
-	if (!user) {
-		throw new ApiError(404, "User not found");
-	}
-
-	const isPasswordValid = await user.isPasswordCorrect(password);
-
-	if (!isPasswordValid) {
-		throw new ApiError(401, "Incorrect Password");
-	}
-
-	const { jwtToken } = await generateJwtToken(user._id);
-
-	const loggedInUser = await User.findById(user._id).select("-password");
-
-	const options = {
-		httpOnly: true,
-		secure: true,
-	};
-
-	return res
-		.status(200)
-		.cookie("jwtToken", jwtToken, options)
-		.json(new ApiResponse(200, { user: loggedInUser, jwtToken }, "User LoggedIn Successfully"));
 });
 
 const logOutUser = asyncHandler(async (req, res) => {
@@ -83,8 +91,10 @@ const logOutUser = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = asyncHandler(async (req, res) => {
-
-	const user = await User.findById(req.user._id).populate({path: "watchlist", select: "title"}).populate({path: "favourites", select: "title"}).exec();
+	const user = await User.findById(req.user._id)
+		.populate({ path: "watchlist", select: "title" })
+		.populate({ path: "favourites", select: "title" })
+		.exec();
 
 	return res.status(200).json(new ApiResponse(200, user, "User Fetched Successfully"));
 });
