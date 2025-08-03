@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getUserProfile, logOutUser, loginUser, registerUser, refreshAccessToken } from "../controllers/user.controller.js";
+import {
+  getUserProfile,
+  logOutUser,
+  loginUser,
+  registerUser,
+  refreshAccessToken,
+} from "../controllers/user.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const userRouter = Router();
