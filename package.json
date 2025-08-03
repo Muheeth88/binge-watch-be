@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+    "start": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "debug": "node --inspect -r dotenv/config --experimental-json-modules src/index.js",
+    "debug:nodemon": "nodemon --inspect -r dotenv/config --experimental-json-modules src/index.js"
   },
   "author": "Muheeth",
   "license": "ISC",
