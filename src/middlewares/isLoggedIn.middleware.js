@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 
 export const isLoggedIn = asyncHandler(async (req, res, next) => {
 	try {
-		if (req.cookies?.jwtToken || req.header("Authorization")) {
-			const token = req.cookies?.jwtToken || req.header("Authorization")?.replace("Bearer ", "");
-			const deCodedToken = jwt.verify(token, process.env.JWT_TOKEN_SECRET);
+		if (req.cookies?.accessToken || req.header("Authorization")) {
+			const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+			const deCodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-			const user = await User.findById(deCodedToken?._id).select("-password");
+			const user = await User.findById(deCodedToken?._id).select("-password -refreshToken");
 
 			if (!user) {
 				throw new ApiError(401, "Invalid Access Token");

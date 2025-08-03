@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserProfile, logOutUser, loginUser, registerUser } from "../controllers/user.controller.js";
+import { getUserProfile, logOutUser, loginUser, registerUser, refreshAccessToken } from "../controllers/user.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const userRouter = Router();
@@ -7,6 +7,7 @@ const userRouter = Router();
 // * Unsecured Routes
 userRouter.route("/register").post(registerUser);
 userRouter.route("/login").post(loginUser);
+userRouter.route("/refresh-token").post(refreshAccessToken);
 
 // * Secured Routes
 userRouter.route("/logout").post(verifyJwt, logOutUser);

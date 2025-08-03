@@ -2,6 +2,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res) => {
   const { userName, email, dateOfBirth, role, password } = req.body;
@@ -73,9 +74,9 @@ const loginUser = asyncHandler(async (req, res) => {
       return res.status(401).json(new ApiResponse(401, null, errorMessage));
     }
 
-    const { jwtToken } = await generateJwtToken(user._id);
+    const { accessToken, refreshToken } = await generateJwtToken(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password");
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
       httpOnly: true,
@@ -84,11 +85,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     return res
       .status(200)
-      .cookie("jwtToken", jwtToken, options)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
       .json(
         new ApiResponse(
           200,
-          { user: loggedInUser, jwtToken },
+          { user: loggedInUser, accessToken },
           "User LoggedIn Successfully"
         )
       );
@@ -102,7 +104,7 @@ const logOutUser = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $unset: {
-        jwtToken: 1,
+        refreshToken: 1,
       },
     },
     { new: true }
@@ -115,7 +117,8 @@ const logOutUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("jwtToken", options)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User LoggedOut"));
 });
 
@@ -130,12 +133,62 @@ const getUserProfile = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User Fetched Successfully"));
 });
 
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookies.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    const { accessToken, refreshToken: newRefreshToken } = await generateJwtToken(user._id);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken },
+          "Access token refreshed"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
+});
+
 const generateJwtToken = async (userId) => {
   try {
     const user = await User.findById(userId);
-    const jwtToken = user.generateJwtToken();
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+    
+    user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
-    return { jwtToken };
+    
+    return { accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(
       500,
@@ -144,4 +197,4 @@ const generateJwtToken = async (userId) => {
   }
 };
 
-export { registerUser, loginUser, logOutUser, getUserProfile };
+export { registerUser, loginUser, logOutUser, getUserProfile, refreshAccessToken };
